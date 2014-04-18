@@ -1,46 +1,45 @@
 var http = require( "http" );
 var async = require( "async" );
-/*
+
 var stringList = [
-	"apple", "mangoes"
-	];
-*/
+	"apple",
+	"mangoes"
+];
+
 var requestBruteforce = function requestBruteforce( string, callback ){
 	var options = {
 	  "host": "127.0.0.1",
 	  "port": 8080,
-	   "path": "?requestTime = "+Date.now()
+	  "path": "?string=" + string + "&requestTime = " + Date.now( )
 	};
+
 	http.get( options, 
 		function onResponse( response ){
 			response.on( "data",
 				function onData( data ){
-					data = JSON.parse (data);
-					var rawString = data.rawString;				// string from permutation matched with hash
-					var hashedString = data.hashedString;		// hash of rawString from permutation matched from rawString 
-					var originalString = data.originalString;	// string from server
-					var responseDuration = Date.now( ) - data.responseTime; // response time of server
+					data = JSON.parse( data );
 
+					var responseDuration = Date.now( ) - data.responseTime;
 					data.responseDuration = responseDuration;
 
-					callback(null, data);
-					} );
+					callback( null, data );
+				} );
 		} )
 		.on( "error",
 			function onError( error ) {
-
-					callback(error);
-
-	  			console.log("Got error: " + error.message);
+				console.log("Got error: " + error.message);
+				callback( error );
 			} );
 };
 
-/*
 var bruteForceEngineList = [ ];
 
-for(index=0; index<stringList.length;index++){
+for( var index = 0; index < stringList.length ; index++ ){
+	
 	bruteForceEngineList.push( function engine( callback ){
-		requestBruteforce( stringList[ index ],
+		var currentString = stringList[ index ]; 	
+		
+		requestBruteforce( currentString,
 			function onCallback( error, result ){
 				callback( error, result );
 			} );
@@ -50,9 +49,9 @@ for(index=0; index<stringList.length;index++){
 
 async.series( bruteForceEngineList,
 	function onFinal( error, results ){
-
-console.log (results);
-
+		if( error ){
+			console.log( "ERROR: " + error );
+		}else{
+			console.log( results );	
+		}
 	} );
-
-*/
